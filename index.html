@@ -5,21 +5,21 @@
 <style>
 :root {
   /* Concept : un programme de concert en colonne unique. Un bandeau de cinq couleurs, une couleur par quiz, et un grand titre condensé comme une affiche. */
-  --bg: #E8F1F6;
-  --surface: #FFFFFF;
-  --soft: #F0F6F9;
-  --fg: #0A2036;
-  --muted: #4A6379;
-  --line: #CBDAE5;
-  --accent: #1F5FD6;
-  --accent-fg: #FFFFFF;
-  --t1: #1F5FD6; --t1-fg: #FFFFFF;
-  --t2: #F0A020; --t2-fg: #2B1B00;
-  --t3: #0B7F75; --t3-fg: #FFFFFF;
-  --t4: #D2432E; --t4-fg: #FFFFFF;
-  --t5: #6B3FD0; --t5-fg: #FFFFFF;
-  --ok: #0F7F55;
-  --ko: #C23421;
+  --bg: #FFF1A8;
+--surface: #FFFFFF;
+--soft: #FFE0F0;
+--fg: #1A0B3B;
+--muted: #5B3F8C;
+--line: #FFB3D9;
+--accent: #FF2E93;
+--accent-fg: #FFFFFF;
+--t1: #2BB8FF;  --t1-fg: #0A1A3B;
+--t2: #FFD400;  --t2-fg: #2B1B00;
+--t3: #19E3A0;  --t3-fg: #03211E;
+--t4: #FF4D6D;  --t4-fg: #2B0A04;
+--t5: #B66BFF;  --t5-fg: #14083A;
+--ok: #00B86B;
+--ko: #FF2E2E;
   --shadow: 0 1px 0 rgba(10,32,54,.05), 0 14px 30px -18px rgba(10,32,54,.4);
   --font-display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
   --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -134,6 +134,13 @@ h1 {
 .dots i.ok { background: var(--ok); }
 .dots i.ko { background: var(--ko); }
 
+.timer { display: flex; align-items: center; gap: 10px; }
+.timer .track { flex: 1; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.timer .fill { height: 100%; width: 100%; background: var(--tone); transform-origin: left; }
+.timer .secs { font-family: var(--font-mono); font-size: 14px; font-weight: 500; min-width: 3ch; text-align: right; }
+.timer.low .fill { background: var(--ko); }
+.timer.low .secs { color: var(--ko); }
+
 .qcard { background: var(--surface); border-radius: 22px; padding: 20px; box-shadow: var(--shadow); display: grid; gap: 16px; }
 .qtype {
   justify-self: start; padding: 4px 11px; border-radius: 999px;
@@ -218,6 +225,10 @@ h1 {
 
     <article class="qcard" id="qcard">
       <span class="qtype" id="qtype"></span>
+      <div class="timer" id="timer" aria-label="Temps restant">
+        <div class="track"><div class="fill" id="tfill"></div></div>
+        <span class="secs" id="tsecs">10s</span>
+      </div>
       <h2 class="q" id="qtext"></h2>
       <div class="answers" id="answers"></div>
       <div class="actions" id="tools" hidden>
@@ -262,27 +273,27 @@ h1 {
 
   /* ---------- Données ---------- */
   const QCM = [
-    { q: "Quel est le prénom de naissance de Jul ?", a: ["Julien", "Julio", "Jordan", "Joseph"], c: 0, e: "À l’état civil, il s’appelle Julien Mari. « Jul » est son nom de scène." },
-    { q: "Dans quelle ville est né Jul ?", a: ["Marseille", "Toulon", "Nice", "Montpellier"], c: 0, e: "Jul est né à Marseille." },
-    { q: "Comment s’appelle le label sur lequel Jul sort ses albums ?", a: ["D’or et de Platine", "Liga One Industry", "Phocéa Records", "Sud Music"], c: 0, e: "Il a quitté Liga One Industry en 2015 et sort ses albums sur D’or et de Platine." },
-    { q: "Quel label Jul a-t-il quitté en 2015 ?", a: ["Liga One Industry", "D’or et de Platine", "Phocéa Records", "Sud Music"], c: 0, e: "Après son départ de Liga One Industry en 2015, il a continué avec D’or et de Platine." },
-    { q: "Quel est le titre de son premier album, sorti en 2014 ?", a: ["Dans ma paranoïa", "My World", "Émotions", "L’ovni"], c: 0, e: "« Dans ma paranoïa » est sorti en 2014, au début de sa carrière." },
-    { q: "Quel album de Jul a reçu une Victoire de la musique en 2017 ?", a: ["My World", "Émotions", "L’ovni", "Je tourne en rond"], c: 0, e: "My World a été récompensé dans la catégorie album de musique urbaine, en 2017." },
-    { q: "Quel album est sorti en janvier 2024, pour les dix ans de carrière de Jul ?", a: ["Décennie", "Mise à jour", "Indépendance", "Cœur blanc"], c: 0, e: "« Décennie » est sorti le 19 janvier 2024." },
-    { q: "En mai 2024, quel rôle Jul a-t-il eu pour les Jeux olympiques de Paris 2024 ?", a: ["Il a allumé la vasque olympique à Marseille", "Il a porté le drapeau français", "Il a chanté à la cérémonie d’ouverture", "Il a commenté le marathon"], c: 0, e: "Le 8 mai 2024, il a allumé la vasque olympique à Marseille." },
-    { q: "Dans quel stade marseillais Jul a-t-il donné un concert en 2022 ?", a: ["L’Orange Vélodrome", "Le stade Delort", "La Mosson", "Le stade Pierre-Mauroy"], c: 0, e: "Il a joué à l’Orange Vélodrome en 2022." },
-    { q: "En avril 2025, dans quel stade Jul a-t-il donné un concert ?", a: ["Le Stade de France", "Le Parc des Princes", "Le Groupama Stadium", "Le stade Pierre-Mauroy"], c: 0, e: "Le concert avait lieu le 26 avril 2025, au Stade de France." },
-    { q: "Lequel de ces surnoms est associé à Jul ?", a: ["L’Ovni", "Le Roi Soleil", "Le Prince du Vieux-Port", "Monsieur Canebière"], c: 0, e: "On l’appelle aussi « La machine ». Deux de ses albums portent ces surnoms : L’ovni et La machine." },
-    { q: "Depuis février 2020, Jul est considéré comme…", a: ["le plus gros vendeur d’albums du rap français", "le premier rappeur français à gagner un Grammy", "le plus jeune lauréat des Victoires de la musique", "le premier rappeur à jouer au Stade de France"], c: 0, e: "Il avait alors dépassé les 4 millions d’albums vendus, un record dans le rap français." }
+    { q: "Quel est le modèle de voiture que Jul aime le plus ?", a: ["Twingo", "Mercedes", "Audi", "Golf"], c: 2, e: "Bien joué c'est bien Audi." },
+    { q: "Quel animal Jul aime le plus ?", a: ["Boxer", "Bulldog américain", "Rottweiler", "Pit_Bulls"], c: 3, e: "Jul préfère les pit-bulls." },
+    { q: "Lors du clip En y son téléphone est tombé lors de sa glissade et donc ou étais mis son téléphone  ?", a: ["Entre lui est le passager", "Dans sa poche", "Dans sa mains", "Dans son slip"], c: 0, e: "Oui entre lui et le passager " },
+    { q: "Quel est son sportif préféré ", a: ["Dimitri Payet", "Platini", "Zidane", "Mbappé"], c: 2, e: "C'est bien Zidane." },
+    { q: "Quand Jul est né ?", a: ["12 février", "14 février", "16 février", "13 février"], c: 1, e: "« Il est né le 14 février." },
+    { q: "Quel est sa destination préféré ?", a: ["Cuba", "Thaïlande", "Mexique", "Japon"], c: 0, e: "C'est bine Cuba." },
+    { q: "Quel est son plat préféré ?", a: ["Pizza", "Burger", "Pâte bolognaises", "Pâtes Carbo"], c: 2, e: "C'est bien Pate bolognaise ." },
+    { q: "Combien d'album Jul a sortit dans toute sa carrières ?", a: ["34", "35", "36", "33"], c: 1, e: "Il a fais 35 albums." },
+    { q: "Quel est son record sur planète rap ?", a: ["46'03", "43,01", "42,12", "45,14"], c: 1, e: "Il a tenu 43,01m." },
+    { q: "Combien de featuring Jul a fait dans sa carrière ?", a: ["164", "157", "154", "149"], c: 2, e: "C'est bien 154 featuring." },
+    { q: "Dans quel quatier Jul a vécu ?", a: ["La Belle de Mai", "Saint-Mauront", "Saint Jean de la Puntas", "Saint-Jean-du-Désert"], c: 3, e: "Il a bien vécu a Saint Jean du Desert." },
+    { q: "Dans quel arrondissement de Marseille ?", a: ["13eme", "6eme", "5eme", "11eme"], c: 2, e: "Bien jouer c'est bien le 5eme arrondissement." }
   ];
 
   const VF = [
-    { q: "Jul est né à Marseille.", v: true, e: "Oui, il est né à Marseille." },
-    { q: "Le label de Jul s’appelle D’or et de Platine.", v: true, e: "Oui. Il y sort ses albums depuis son départ de Liga One Industry en 2015." },
-    { q: "« Dans ma paranoïa » est son premier album.", v: true, e: "Oui, il est sorti en 2014." },
-    { q: "Jul a quitté le label Liga One Industry en 2015.", v: true, e: "Oui, c’est après ce départ qu’il a développé D’or et de Platine." },
-    { q: "My World a reçu une Victoire de la musique.", v: true, e: "Oui, en 2017, dans la catégorie album de musique urbaine." },
-    { q: "Jul a allumé la vasque olympique de Paris 2024 à Paris.", v: false, e: "Faux : il l’a allumée à Marseille, le 8 mai 2024." },
+    { q: "Lors d'un clip Jul a perdu une vache.", v: true, e: "Oui, dans un clip il a perdu la vache dans Sarcelles." },
+    { q: "Jul a fais 846 sons dans sa carrière.", v: false, e: "Non Jul a fais 836." },
+    { q: "Jul a déjà participé a un mariage et y chanter ?", v: true, e: "Oui,il a déjà participé." },
+    { q: "Jul a fais 157 featuring dans sa carrière.", v: false, e: "Non, c’est bien 154 featuring." },
+    { q: "Jul adore les pâtes carbo.", v: false, e: "Non, lui c'est les pâtes bolognaise qu'il préfère." },
+    { q: "Jul a gagner NRJ Award en 2017.", v: false, e: "Faux : il a jamais gagner." },
     { q: "Jul a donné un concert au Stade de France en avril 2025.", v: true, e: "Oui, le 26 avril 2025." },
     { q: "L’album « Décennie » est sorti en 2019.", v: false, e: "Faux : il est sorti le 19 janvier 2024, pour ses dix ans de carrière." },
     { q: "Jul a joué à l’Orange Vélodrome en 2022.", v: true, e: "Oui, il y a donné un concert en 2022." },
@@ -299,36 +310,12 @@ h1 {
     { q: "Quel album est sorti le 19 janvier 2024, pour les dix ans de carrière de Jul ?", a: ["Décennie", "Mise à jour", "Indépendance", "Oubliez-moi"], c: 0, e: "« Décennie » est sorti le 19 janvier 2024." },
     { q: "Quel album de Jul a reçu une Victoire de la musique en 2017 ?", a: ["My World", "Émotions", "L’ovni", "Je tourne en rond"], c: 0, e: "My World a reçu le prix de l’album de musique urbaine." },
     { q: "Quel album de Jul est sorti en 2026 ?", a: ["Oubliez-moi", "Décennie", "Extraterrestre", "Indépendance"], c: 0, e: "« Oubliez-moi » fait partie de ses sorties de 2026." }
-  ];
-
-  const INTRUS = [
-    { a: ["Dans ma paranoïa", "My World", "Émotions", "Ipséité"], c: 3, e: "« Ipséité » est un album de Damso." },
-    { a: ["L’ovni", "La machine", "Extraterrestre", "Dans la légende"], c: 3, e: "« Dans la légende » est un album de PNL." },
-    { a: ["Décennie", "Mise à jour", "Cœur blanc", "Civilisation"], c: 3, e: "« Civilisation » est un album d’Orelsan." },
-    { a: ["Indépendance", "Rien 100 rien", "Demain ça ira", "Trône"], c: 3, e: "« Trône » est un album de Booba." },
-    { a: ["La zone en personne", "Inspi d’ailleurs", "La tête dans les nuages", "Cyborg"], c: 3, e: "« Cyborg » est un album de Nekfeu." },
-    { a: ["Oubliez-moi", "Décennie", "Je ne me vois pas briller", "JVLIVS"], c: 3, e: "« JVLIVS » est un album de SCH." },
-    { a: ["Loin du monde", "Je tourne en rond", "Cœur blanc", "Batterie faible"], c: 3, e: "« Batterie faible » est un album de Damso." },
-    { a: ["Émotions", "L’ovni", "My World", "Deux frères"], c: 3, e: "« Deux frères » est un album de PNL." }
-  ];
-
-  // Du plus ancien au plus récent.
-  const TIMELINE = [
-    { t: "Dans ma paranoïa", d: "2014" },
-    { t: "My World", d: "2015" },
-    { t: "La machine", d: "2020" },
-    { t: "Indépendance", d: "déc. 2021" },
-    { t: "Extraterrestre", d: "juin 2022" },
-    { t: "Décennie", d: "janv. 2024" },
-    { t: "Oubliez-moi", d: "2026" }
-  ];
+  ]; 
 
   const QUIZ = [
     { id: 'qcm', tone: 1, name: 'Le grand QCM', n: 8, desc: '8 questions à 4 choix sur sa vie et sa carrière.' },
     { id: 'vf', tone: 2, name: 'Vrai ou faux', n: 8, desc: '8 affirmations, tranche vite.' },
     { id: 'album', tone: 3, name: 'Devine l’album', n: 6, desc: '6 indices, retrouve le bon titre.' },
-    { id: 'intrus', tone: 4, name: 'Le titre intrus', n: 6, desc: '4 titres : un seul n’est pas un album de Jul.' },
-    { id: 'chrono', tone: 5, name: 'La chronologie', n: 5, desc: 'Classe 4 albums du plus ancien au plus récent.' }
   ];
 
   /* ---------- Records ---------- */
@@ -373,6 +360,52 @@ h1 {
   const result = $('#result');
 
   let cur = null, picked = [];
+
+  /* ---------- Chrono : 10 secondes par question ---------- */
+  const TIME_LIMIT = 10;
+  const timerEl = $('#timer'), tFill = $('#tfill'), tSecs = $('#tsecs');
+  let timerId = null, deadline = 0;
+  function stopTimer() {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+  }
+  function tick() {
+    const left = Math.max(0, deadline - Date.now());
+    tFill.style.transform = 'scaleX(' + (left / (TIME_LIMIT * 1000)) + ')';
+    tSecs.textContent = Math.ceil(left / 1000) + 's';
+    timerEl.classList.toggle('low', left <= 3000);
+    if (left === 0) { stopTimer(); timeUp(); }
+  }
+  function startTimer() {
+    stopTimer();
+    deadline = Date.now() + TIME_LIMIT * 1000;
+    tick();
+    timerId = setInterval(tick, 100);
+  }
+  function timeUp() {
+    if (!cur || cur.answered) return;
+    cur.answered = true;
+    cur.results[cur.i] = false;
+    const r = cur.rounds[cur.i];
+    let text;
+    if (r.kind === 'choice') {
+      [...answers.children].forEach((b, k) => {
+        b.disabled = true;
+        if (r.opts[k].ok) { b.classList.add('ok'); b.querySelector('.mark').textContent = '✓'; }
+      });
+      text = r.two ? r.e : 'La bonne réponse : ' + r.opts.find(o => o.ok).t + '. ' + r.e;
+    } else {
+      const sorted = [...r.items].sort((a, b) => a.rank - b.rank);
+      r.items.forEach(it => {
+        it.el.disabled = true;
+        it.el.querySelector('.rank').textContent = String(sorted.indexOf(it) + 1);
+        it.el.querySelector('.year').textContent = it.d;
+      });
+      clearBtn.disabled = true;
+      validateBtn.disabled = true;
+      text = 'Dans l’ordre : ' + sorted.map(it => it.t + ' (' + it.d + ')').join(', ') + '.';
+    }
+    showFeedback(false, text, 'Temps écoulé !');
+  }
 
   /* ---------- Accueil ---------- */
   function renderMenu() {
@@ -469,11 +502,13 @@ h1 {
         answers.appendChild(b);
       });
     }
+    startTimer();
   }
 
-  function showFeedback(good, text) {
+  function showFeedback(good, text, title) {
+    stopTimer();
     fb.className = 'feedback ' + (good ? 'good' : 'bad');
-    fbTitle.textContent = good ? 'Bonne réponse !' : 'Raté.';
+    fbTitle.textContent = title || (good ? 'Bonne réponse !' : 'Raté.');
     fbText.textContent = text;
     fb.hidden = false;
     const last = cur.i === cur.rounds.length - 1;
@@ -550,6 +585,7 @@ h1 {
   });
 
   function finish() {
+    stopTimer();
     const n = cur.rounds.length, s = cur.score;
     const r = saveRecord(cur.id, s);
     qcard.hidden = true;
@@ -568,7 +604,7 @@ h1 {
   $('#again').addEventListener('click', () => start(cur.id));
   $('#menu2').addEventListener('click', goHome);
   $('#back').addEventListener('click', goHome);
-  function goHome() { renderMenu(); view('home'); }
+  function goHome() { stopTimer(); renderMenu(); view('home'); }
 
   renderMenu();
   view('home');
