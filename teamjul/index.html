@@ -140,6 +140,12 @@ h1 {
   background: var(--tone); color: var(--tone-fg);
   font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
 }
+.timer { display: flex; align-items: center; gap: 10px; }
+.timer .track { flex: 1; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.timer .fill { height: 100%; width: 100%; background: var(--tone); border-radius: 4px; transform-origin: left center; }
+.timer .secs { min-width: 3ch; text-align: right; font-family: var(--font-mono); font-size: 15px; color: var(--muted); }
+.timer.low .fill { background: var(--ko); }
+.timer.low .secs { color: var(--ko); font-weight: 700; }
 .q { margin: 0; font-size: clamp(20px, 5.4vw, 25px); line-height: 1.25; font-weight: 600; text-wrap: balance; }
 
 .answers { display: grid; gap: 10px; }
@@ -218,6 +224,10 @@ h1 {
 
     <article class="qcard" id="qcard">
       <span class="qtype" id="qtype"></span>
+      <div class="timer" id="timer" role="timer" aria-label="Temps restant">
+        <div class="track" aria-hidden="true"><div class="fill" id="tfill"></div></div>
+        <span class="secs" id="tsecs"></span>
+      </div>
       <h2 class="q" id="qtext"></h2>
       <div class="answers" id="answers"></div>
       <div class="actions" id="tools" hidden>
@@ -371,8 +381,38 @@ h1 {
   const tools = $('#tools'), clearBtn = $('#clear'), validateBtn = $('#validate');
   const fb = $('#fb'), fbTitle = $('#fbtitle'), fbText = $('#fbtext'), nextBtn = $('#next');
   const result = $('#result');
+  const timerEl = $('#timer'), tfill = $('#tfill'), tsecs = $('#tsecs');
 
   let cur = null, picked = [];
+
+  /* ---------- Chrono ---------- */
+  const TIME_LIMIT = 15;
+  let tick = null, deadline = 0;
+  function paintTimer(left) {
+    tfill.style.transform = 'scaleX(' + Math.max(0, left / (TIME_LIMIT * 1000)) + ')';
+    const secs = Math.ceil(left / 1000);
+    tsecs.textContent = secs + ' s';
+    timerEl.classList.toggle('low', secs <= 5);
+  }
+  function startTimer() {
+    stopTimer();
+    deadline = Date.now() + TIME_LIMIT * 1000;
+    paintTimer(TIME_LIMIT * 1000);
+    tick = setInterval(() => {
+      const left = deadline - Date.now();
+      paintTimer(Math.max(0, left));
+      if (left <= 0) { stopTimer(); timeUp(); }
+    }, 100);
+  }
+  function stopTimer() {
+    if (tick) { clearInterval(tick); tick = null; }
+  }
+  function timeUp() {
+    if (!cur || cur.answered) return;
+    const r = cur.rounds[cur.i];
+    if (r.kind === 'choice') answerChoice(null, null);
+    else revealOrder(true);
+  }
 
   /* ---------- Accueil ---------- */
   function renderMenu() {
@@ -439,6 +479,7 @@ h1 {
     validateBtn.disabled = true;
     answers.innerHTML = '';
     paintDots();
+    startTimer();
 
     if (r.kind === 'choice') {
       answers.className = 'answers' + (r.two ? ' two' : '');
@@ -471,9 +512,10 @@ h1 {
     }
   }
 
-  function showFeedback(good, text) {
+  function showFeedback(good, text, timedOut) {
+    stopTimer();
     fb.className = 'feedback ' + (good ? 'good' : 'bad');
-    fbTitle.textContent = good ? 'Bonne réponse !' : 'Raté.';
+    fbTitle.textContent = good ? 'Bonne réponse !' : timedOut ? 'Temps écoulé !' : 'Raté.';
     fbText.textContent = text;
     fb.hidden = false;
     const last = cur.i === cur.rounds.length - 1;
@@ -488,7 +530,7 @@ h1 {
     if (cur.answered) return;
     cur.answered = true;
     const r = cur.rounds[cur.i];
-    const good = opt.ok;
+    const good = !!(opt && opt.ok);
     if (good) cur.score++;
     cur.results[cur.i] = good;
     const btns = [...answers.children];
@@ -501,7 +543,7 @@ h1 {
     let text = r.e;
     if (!good && !r.two) text = 'La bonne réponse : ' + r.opts.find(o => o.ok).t + '. ' + r.e;
     else if (!good) text = r.e;
-    showFeedback(good, text);
+    showFeedback(good, text, !opt);
   }
 
   /* Chronologie */
@@ -525,9 +567,13 @@ h1 {
     if (!cur || cur.answered) return;
     const r = cur.rounds[cur.i];
     if (picked.length !== r.items.length) return;
+    revealOrder(false);
+  });
+  function revealOrder(timedOut) {
+    const r = cur.rounds[cur.i];
     cur.answered = true;
     const sorted = [...r.items].sort((a, b) => a.rank - b.rank);
-    const good = picked.every((it, k) => it === sorted[k]);
+    const good = !timedOut && picked.every((it, k) => it === sorted[k]);
     if (good) cur.score++;
     cur.results[cur.i] = good;
     r.items.forEach(it => {
@@ -540,8 +586,8 @@ h1 {
     });
     clearBtn.disabled = true;
     validateBtn.disabled = true;
-    showFeedback(good, 'Dans l’ordre : ' + sorted.map(it => it.t + ' (' + it.d + ')').join(', ') + '.');
-  });
+    showFeedback(good, 'Dans l’ordre : ' + sorted.map(it => it.t + ' (' + it.d + ')').join(', ') + '.', timedOut);
+  }
 
   nextBtn.addEventListener('click', () => {
     if (!cur || !cur.answered) return;
@@ -551,6 +597,7 @@ h1 {
 
   function finish() {
     const n = cur.rounds.length, s = cur.score;
+    stopTimer();
     const r = saveRecord(cur.id, s);
     qcard.hidden = true;
     result.hidden = false;
@@ -568,7 +615,7 @@ h1 {
   $('#again').addEventListener('click', () => start(cur.id));
   $('#menu2').addEventListener('click', goHome);
   $('#back').addEventListener('click', goHome);
-  function goHome() { renderMenu(); view('home'); }
+  function goHome() { stopTimer(); renderMenu(); view('home'); }
 
   renderMenu();
   view('home');

@@ -1,0 +1,5 @@
+# Site statique : un seul index.html, rien à compiler.
+# Le dossier de base du projet Netlify est « teamjul ».
+[build]
+  publish = "."
+  command = "echo 'Site statique, rien à compiler'"
