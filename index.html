@@ -1,0 +1,578 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Quiz Jul</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap">
+<style>
+:root {
+  /* Concept : un programme de concert en colonne unique. Un bandeau de cinq couleurs, une couleur par quiz, et un grand titre condensé comme une affiche. */
+  --bg: #E8F1F6;
+  --surface: #FFFFFF;
+  --soft: #F0F6F9;
+  --fg: #0A2036;
+  --muted: #4A6379;
+  --line: #CBDAE5;
+  --accent: #1F5FD6;
+  --accent-fg: #FFFFFF;
+  --t1: #1F5FD6; --t1-fg: #FFFFFF;
+  --t2: #F0A020; --t2-fg: #2B1B00;
+  --t3: #0B7F75; --t3-fg: #FFFFFF;
+  --t4: #D2432E; --t4-fg: #FFFFFF;
+  --t5: #6B3FD0; --t5-fg: #FFFFFF;
+  --ok: #0F7F55;
+  --ko: #C23421;
+  --shadow: 0 1px 0 rgba(10,32,54,.05), 0 14px 30px -18px rgba(10,32,54,.4);
+  --font-display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #07182A; --surface: #0F2540; --soft: #0B1E36;
+    --fg: #EAF2FA; --muted: #93AAC1; --line: #1F3A5A;
+    --accent: #5B93FF; --accent-fg: #04132B;
+    --t1: #5B93FF; --t1-fg: #04132B;
+    --t2: #F5B544; --t2-fg: #2B1B00;
+    --t3: #3CC9BB; --t3-fg: #03211E;
+    --t4: #FF7B66; --t4-fg: #2B0A04;
+    --t5: #A58AFF; --t5-fg: #14083A;
+    --ok: #3DDC97; --ko: #FF8A78;
+    --shadow: 0 14px 30px -18px rgba(0,0,0,.75);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #07182A; --surface: #0F2540; --soft: #0B1E36;
+  --fg: #EAF2FA; --muted: #93AAC1; --line: #1F3A5A;
+  --accent: #5B93FF; --accent-fg: #04132B;
+  --t1: #5B93FF; --t1-fg: #04132B;
+  --t2: #F5B544; --t2-fg: #2B1B00;
+  --t3: #3CC9BB; --t3-fg: #03211E;
+  --t4: #FF7B66; --t4-fg: #2B0A04;
+  --t5: #A58AFF; --t5-fg: #14083A;
+  --ok: #3DDC97; --ko: #FF8A78;
+  --shadow: 0 14px 30px -18px rgba(0,0,0,.75);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 26px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; color: inherit; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+[data-tone="1"] { --tone: var(--t1); --tone-fg: var(--t1-fg); }
+[data-tone="2"] { --tone: var(--t2); --tone-fg: var(--t2-fg); }
+[data-tone="3"] { --tone: var(--t3); --tone-fg: var(--t3-fg); }
+[data-tone="4"] { --tone: var(--t4); --tone-fg: var(--t4-fg); }
+[data-tone="5"] { --tone: var(--t5); --tone-fg: var(--t5-fg); }
+
+.app { max-width: 560px; margin-inline: auto; display: grid; gap: 22px; }
+
+.top { display: grid; gap: 10px; }
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(60px, 19vw, 96px);
+  line-height: .86;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+}
+.stripe { display: flex; gap: 4px; height: 8px; }
+.stripe i { flex: 1; border-radius: 4px; display: block; }
+.stripe i:nth-child(1) { background: var(--t1); }
+.stripe i:nth-child(2) { background: var(--t2); }
+.stripe i:nth-child(3) { background: var(--t3); }
+.stripe i:nth-child(4) { background: var(--t4); }
+.stripe i:nth-child(5) { background: var(--t5); }
+.lede { margin: 0; color: var(--muted); max-width: 46ch; }
+
+.menu { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.quizbtn {
+  display: grid; grid-template-columns: 76px minmax(0, 1fr);
+  width: 100%; padding: 0; border: 0; border-radius: 18px; overflow: hidden;
+  background: var(--surface); text-align: left; cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform .15s ease;
+}
+.quizbtn:hover { transform: translateY(-2px); }
+.quizbtn .num {
+  display: grid; place-items: center; align-content: center;
+  background: var(--tone); color: var(--tone-fg);
+  font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: .9;
+}
+.quizbtn .num small {
+  display: block; font-family: var(--font-body); font-weight: 700; font-size: 10.5px;
+  letter-spacing: .1em; text-transform: uppercase; margin-top: 4px;
+}
+.quizbtn .meta { padding: 14px 16px; min-width: 0; display: grid; gap: 2px; }
+.quizbtn .name {
+  font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1;
+  text-transform: uppercase; letter-spacing: .01em;
+}
+.quizbtn .desc { color: var(--muted); font-size: 14.5px; }
+.quizbtn .rec { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+.note { margin: 0; color: var(--muted); font-size: 12.5px; max-width: 56ch; }
+
+/* Jeu */
+.play { display: grid; gap: 14px; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.back { padding: 8px 0; border: 0; background: none; font-weight: 700; cursor: pointer; }
+.meter { display: flex; gap: 14px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.dots { display: flex; gap: 4px; }
+.dots i { flex: 1; height: 6px; border-radius: 3px; background: var(--line); display: block; }
+.dots i.cur { background: var(--tone); }
+.dots i.ok { background: var(--ok); }
+.dots i.ko { background: var(--ko); }
+
+.qcard { background: var(--surface); border-radius: 22px; padding: 20px; box-shadow: var(--shadow); display: grid; gap: 16px; }
+.qtype {
+  justify-self: start; padding: 4px 11px; border-radius: 999px;
+  background: var(--tone); color: var(--tone-fg);
+  font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.q { margin: 0; font-size: clamp(20px, 5.4vw, 25px); line-height: 1.25; font-weight: 600; text-wrap: balance; }
+
+.answers { display: grid; gap: 10px; }
+.answers.two { grid-template-columns: 1fr 1fr; }
+.ans {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  min-height: 54px; padding: 12px 16px; border-radius: 14px;
+  border: 2px solid var(--line); background: var(--soft);
+  text-align: left; font-weight: 600; cursor: pointer;
+}
+.answers.two .ans { justify-content: center; font-size: 18px; }
+.ans:hover:not(:disabled) { border-color: var(--tone); }
+.ans:disabled { cursor: default; }
+.ans.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, var(--surface)); }
+.ans.ko { border-color: var(--ko); background: color-mix(in srgb, var(--ko) 14%, var(--surface)); }
+.ans .mark { font-weight: 800; }
+.ans.ok .mark { color: var(--ok); }
+.ans.ko .mark { color: var(--ko); }
+
+.chip { justify-content: flex-start; }
+.chip .rank {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 2px dashed var(--line); font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+}
+.chip[aria-pressed="true"] .rank { border: 2px solid var(--tone); background: var(--tone); color: var(--tone-fg); }
+.chip .title { flex: 1; min-width: 0; }
+.chip .year { font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-weight: 500; }
+
+.feedback { padding: 14px 16px; border-radius: 14px; display: grid; gap: 4px; }
+.feedback.good { background: color-mix(in srgb, var(--ok) 16%, var(--surface)); }
+.feedback.bad { background: color-mix(in srgb, var(--ko) 14%, var(--surface)); }
+.feedback strong { font-family: var(--font-display); font-size: 22px; line-height: 1; text-transform: uppercase; letter-spacing: .02em; }
+.feedback p { margin: 0; font-size: 15px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  padding: 12px 20px; border: 0; border-radius: 12px;
+  background: var(--accent); color: var(--accent-fg);
+  font-weight: 700; font-size: 15px; cursor: pointer;
+}
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.ghost { background: var(--soft); color: var(--fg); box-shadow: inset 0 0 0 2px var(--line); }
+
+.result { background: var(--surface); border-radius: 22px; padding: 24px 20px; box-shadow: var(--shadow); display: grid; gap: 10px; justify-items: start; }
+.result .big { font-family: var(--font-display); font-weight: 800; font-size: clamp(72px, 24vw, 112px); line-height: .85; color: var(--tone); }
+.result .verdict { margin: 0; font-size: 20px; font-weight: 600; }
+.result .recline { margin: 0; color: var(--muted); font-family: var(--font-mono); font-size: 13px; }
+
+@media (max-width: 380px) {
+  .answers.two { grid-template-columns: 1fr; }
+  .quizbtn { grid-template-columns: 64px minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: .01ms !important; animation: none !important; }
+}
+</style>
+
+<main class="app">
+  <header class="top">
+    <h1>Quiz Jul</h1>
+    <div class="stripe" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="lede">Cinq façons de tester ce que tu sais sur le rappeur marseillais.</p>
+  </header>
+
+  <section id="home" aria-label="Choisir un quiz">
+    <ul class="menu" id="menu"></ul>
+  </section>
+
+  <section class="play" id="play" aria-label="Quiz en cours" hidden>
+    <div class="bar">
+      <button class="back" type="button" id="back">← Les quiz</button>
+      <div class="meter"><span id="prog"></span><span id="score"></span></div>
+    </div>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+
+    <article class="qcard" id="qcard">
+      <span class="qtype" id="qtype"></span>
+      <h2 class="q" id="qtext"></h2>
+      <div class="answers" id="answers"></div>
+      <div class="actions" id="tools" hidden>
+        <button class="btn ghost" type="button" id="clear">Effacer</button>
+        <button class="btn" type="button" id="validate" disabled>Valider</button>
+      </div>
+      <div class="feedback" id="fb" role="status" aria-live="polite" hidden>
+        <strong id="fbtitle"></strong>
+        <p id="fbtext"></p>
+      </div>
+      <div class="actions"><button class="btn" type="button" id="next" hidden>Question suivante</button></div>
+    </article>
+
+    <article class="result" id="result" hidden>
+      <span class="qtype" id="rtype"></span>
+      <div class="big" id="rscore"></div>
+      <p class="verdict" id="rverdict"></p>
+      <p class="recline" id="rrec"></p>
+      <div class="actions">
+        <button class="btn" type="button" id="again">Rejouer</button>
+        <button class="btn ghost" type="button" id="menu2">Les quiz</button>
+      </div>
+    </article>
+  </section>
+
+  <p class="note">Quiz de fans, application non officielle : aucun lien avec Jul ni avec son label. Les questions portent sur des faits publics (albums, dates, récompenses).</p>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = s => document.querySelector(s);
+  const rand = n => Math.floor(Math.random() * n);
+  const shuffle = a => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = rand(i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  /* ---------- Données ---------- */
+  const QCM = [
+    { q: "Quel est le prénom de naissance de Jul ?", a: ["Julien", "Julio", "Jordan", "Joseph"], c: 0, e: "À l’état civil, il s’appelle Julien Mari. « Jul » est son nom de scène." },
+    { q: "Dans quelle ville est né Jul ?", a: ["Marseille", "Toulon", "Nice", "Montpellier"], c: 0, e: "Jul est né à Marseille." },
+    { q: "Comment s’appelle le label sur lequel Jul sort ses albums ?", a: ["D’or et de Platine", "Liga One Industry", "Phocéa Records", "Sud Music"], c: 0, e: "Il a quitté Liga One Industry en 2015 et sort ses albums sur D’or et de Platine." },
+    { q: "Quel label Jul a-t-il quitté en 2015 ?", a: ["Liga One Industry", "D’or et de Platine", "Phocéa Records", "Sud Music"], c: 0, e: "Après son départ de Liga One Industry en 2015, il a continué avec D’or et de Platine." },
+    { q: "Quel est le titre de son premier album, sorti en 2014 ?", a: ["Dans ma paranoïa", "My World", "Émotions", "L’ovni"], c: 0, e: "« Dans ma paranoïa » est sorti en 2014, au début de sa carrière." },
+    { q: "Quel album de Jul a reçu une Victoire de la musique en 2017 ?", a: ["My World", "Émotions", "L’ovni", "Je tourne en rond"], c: 0, e: "My World a été récompensé dans la catégorie album de musique urbaine, en 2017." },
+    { q: "Quel album est sorti en janvier 2024, pour les dix ans de carrière de Jul ?", a: ["Décennie", "Mise à jour", "Indépendance", "Cœur blanc"], c: 0, e: "« Décennie » est sorti le 19 janvier 2024." },
+    { q: "En mai 2024, quel rôle Jul a-t-il eu pour les Jeux olympiques de Paris 2024 ?", a: ["Il a allumé la vasque olympique à Marseille", "Il a porté le drapeau français", "Il a chanté à la cérémonie d’ouverture", "Il a commenté le marathon"], c: 0, e: "Le 8 mai 2024, il a allumé la vasque olympique à Marseille." },
+    { q: "Dans quel stade marseillais Jul a-t-il donné un concert en 2022 ?", a: ["L’Orange Vélodrome", "Le stade Delort", "La Mosson", "Le stade Pierre-Mauroy"], c: 0, e: "Il a joué à l’Orange Vélodrome en 2022." },
+    { q: "En avril 2025, dans quel stade Jul a-t-il donné un concert ?", a: ["Le Stade de France", "Le Parc des Princes", "Le Groupama Stadium", "Le stade Pierre-Mauroy"], c: 0, e: "Le concert avait lieu le 26 avril 2025, au Stade de France." },
+    { q: "Lequel de ces surnoms est associé à Jul ?", a: ["L’Ovni", "Le Roi Soleil", "Le Prince du Vieux-Port", "Monsieur Canebière"], c: 0, e: "On l’appelle aussi « La machine ». Deux de ses albums portent ces surnoms : L’ovni et La machine." },
+    { q: "Depuis février 2020, Jul est considéré comme…", a: ["le plus gros vendeur d’albums du rap français", "le premier rappeur français à gagner un Grammy", "le plus jeune lauréat des Victoires de la musique", "le premier rappeur à jouer au Stade de France"], c: 0, e: "Il avait alors dépassé les 4 millions d’albums vendus, un record dans le rap français." }
+  ];
+
+  const VF = [
+    { q: "Jul est né à Marseille.", v: true, e: "Oui, il est né à Marseille." },
+    { q: "Le label de Jul s’appelle D’or et de Platine.", v: true, e: "Oui. Il y sort ses albums depuis son départ de Liga One Industry en 2015." },
+    { q: "« Dans ma paranoïa » est son premier album.", v: true, e: "Oui, il est sorti en 2014." },
+    { q: "Jul a quitté le label Liga One Industry en 2015.", v: true, e: "Oui, c’est après ce départ qu’il a développé D’or et de Platine." },
+    { q: "My World a reçu une Victoire de la musique.", v: true, e: "Oui, en 2017, dans la catégorie album de musique urbaine." },
+    { q: "Jul a allumé la vasque olympique de Paris 2024 à Paris.", v: false, e: "Faux : il l’a allumée à Marseille, le 8 mai 2024." },
+    { q: "Jul a donné un concert au Stade de France en avril 2025.", v: true, e: "Oui, le 26 avril 2025." },
+    { q: "L’album « Décennie » est sorti en 2019.", v: false, e: "Faux : il est sorti le 19 janvier 2024, pour ses dix ans de carrière." },
+    { q: "Jul a joué à l’Orange Vélodrome en 2022.", v: true, e: "Oui, il y a donné un concert en 2022." },
+    { q: "Jul a sorti son premier album en 2004.", v: false, e: "Faux : son premier album date de 2014." },
+    { q: "Jul est originaire de Lyon.", v: false, e: "Faux : il est marseillais." },
+    { q: "« Extraterrestre » est un album de Jul sorti en 2022.", v: true, e: "Oui, il est sorti le 3 juin 2022." },
+    { q: "Depuis 2020, Jul est le plus gros vendeur d’albums de l’histoire du rap français.", v: true, e: "Oui : il avait dépassé les 4 millions d’albums vendus en février 2020." }
+  ];
+
+  const DEVINE = [
+    { q: "Quel est le premier album de Jul, sorti en 2014 ?", a: ["Dans ma paranoïa", "My World", "Émotions", "La machine"], c: 0, e: "« Dans ma paranoïa » lance sa carrière en 2014." },
+    { q: "Quel album de Jul est sorti le 3 juin 2022 ?", a: ["Extraterrestre", "Cœur blanc", "Indépendance", "L’ovni"], c: 0, e: "« Extraterrestre » est sorti le 3 juin 2022." },
+    { q: "Quel album de Jul est sorti le 10 décembre 2021 ?", a: ["Indépendance", "Demain ça ira", "Extraterrestre", "La machine"], c: 0, e: "« Indépendance » était annoncé pour le 10 décembre 2021." },
+    { q: "Quel album est sorti le 19 janvier 2024, pour les dix ans de carrière de Jul ?", a: ["Décennie", "Mise à jour", "Indépendance", "Oubliez-moi"], c: 0, e: "« Décennie » est sorti le 19 janvier 2024." },
+    { q: "Quel album de Jul a reçu une Victoire de la musique en 2017 ?", a: ["My World", "Émotions", "L’ovni", "Je tourne en rond"], c: 0, e: "My World a reçu le prix de l’album de musique urbaine." },
+    { q: "Quel album de Jul est sorti en 2026 ?", a: ["Oubliez-moi", "Décennie", "Extraterrestre", "Indépendance"], c: 0, e: "« Oubliez-moi » fait partie de ses sorties de 2026." }
+  ];
+
+  const INTRUS = [
+    { a: ["Dans ma paranoïa", "My World", "Émotions", "Ipséité"], c: 3, e: "« Ipséité » est un album de Damso." },
+    { a: ["L’ovni", "La machine", "Extraterrestre", "Dans la légende"], c: 3, e: "« Dans la légende » est un album de PNL." },
+    { a: ["Décennie", "Mise à jour", "Cœur blanc", "Civilisation"], c: 3, e: "« Civilisation » est un album d’Orelsan." },
+    { a: ["Indépendance", "Rien 100 rien", "Demain ça ira", "Trône"], c: 3, e: "« Trône » est un album de Booba." },
+    { a: ["La zone en personne", "Inspi d’ailleurs", "La tête dans les nuages", "Cyborg"], c: 3, e: "« Cyborg » est un album de Nekfeu." },
+    { a: ["Oubliez-moi", "Décennie", "Je ne me vois pas briller", "JVLIVS"], c: 3, e: "« JVLIVS » est un album de SCH." },
+    { a: ["Loin du monde", "Je tourne en rond", "Cœur blanc", "Batterie faible"], c: 3, e: "« Batterie faible » est un album de Damso." },
+    { a: ["Émotions", "L’ovni", "My World", "Deux frères"], c: 3, e: "« Deux frères » est un album de PNL." }
+  ];
+
+  // Du plus ancien au plus récent.
+  const TIMELINE = [
+    { t: "Dans ma paranoïa", d: "2014" },
+    { t: "My World", d: "2015" },
+    { t: "La machine", d: "2020" },
+    { t: "Indépendance", d: "déc. 2021" },
+    { t: "Extraterrestre", d: "juin 2022" },
+    { t: "Décennie", d: "janv. 2024" },
+    { t: "Oubliez-moi", d: "2026" }
+  ];
+
+  const QUIZ = [
+    { id: 'qcm', tone: 1, name: 'Le grand QCM', n: 8, desc: '8 questions à 4 choix sur sa vie et sa carrière.' },
+    { id: 'vf', tone: 2, name: 'Vrai ou faux', n: 8, desc: '8 affirmations, tranche vite.' },
+    { id: 'album', tone: 3, name: 'Devine l’album', n: 6, desc: '6 indices, retrouve le bon titre.' },
+    { id: 'intrus', tone: 4, name: 'Le titre intrus', n: 6, desc: '4 titres : un seul n’est pas un album de Jul.' },
+    { id: 'chrono', tone: 5, name: 'La chronologie', n: 5, desc: 'Classe 4 albums du plus ancien au plus récent.' }
+  ];
+
+  /* ---------- Records ---------- */
+  const STORE_KEY = 'quiz-jul';
+  let records = {};
+  try { records = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch (e) { records = {}; }
+  function saveRecord(id, score) {
+    const prev = records[id] == null ? null : records[id];
+    const isNew = prev === null || score > prev;
+    if (isNew) {
+      records[id] = score;
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(records)); } catch (e) { /* stockage indisponible */ }
+    }
+    return { isNew, prev };
+  }
+
+  /* ---------- Fabrication des questions ---------- */
+  function choice(q, texts, correct, e, fixed) {
+    const opts = texts.map((t, i) => ({ t, ok: i === correct }));
+    if (!fixed) shuffle(opts);
+    return { kind: 'choice', q, opts, e, two: !!fixed };
+  }
+  function buildRounds(id) {
+    if (id === 'qcm') return shuffle([...QCM]).slice(0, 8).map(x => choice(x.q, x.a, x.c, x.e));
+    if (id === 'vf') return shuffle([...VF]).slice(0, 8).map(x => choice(x.q, ['Vrai', 'Faux'], x.v ? 0 : 1, x.e, true));
+    if (id === 'album') return shuffle([...DEVINE]).map(x => choice(x.q, x.a, x.c, x.e));
+    if (id === 'intrus') return shuffle([...INTRUS]).slice(0, 6).map(x => choice('Quel titre n’est pas un album de Jul ?', x.a, x.c, x.e));
+    const rounds = [];
+    for (let k = 0; k < 5; k++) {
+      const pick = shuffle(TIMELINE.map((a, rank) => ({ t: a.t, d: a.d, rank }))).slice(0, 4);
+      rounds.push({ kind: 'order', q: 'Touche les albums dans l’ordre de sortie, du plus ancien au plus récent.', items: pick });
+    }
+    return rounds;
+  }
+
+  /* ---------- Éléments ---------- */
+  const home = $('#home'), play = $('#play'), menu = $('#menu');
+  const prog = $('#prog'), scoreEl = $('#score'), dots = $('#dots');
+  const qcard = $('#qcard'), qtype = $('#qtype'), qtext = $('#qtext'), answers = $('#answers');
+  const tools = $('#tools'), clearBtn = $('#clear'), validateBtn = $('#validate');
+  const fb = $('#fb'), fbTitle = $('#fbtitle'), fbText = $('#fbtext'), nextBtn = $('#next');
+  const result = $('#result');
+
+  let cur = null, picked = [];
+
+  /* ---------- Accueil ---------- */
+  function renderMenu() {
+    menu.innerHTML = '';
+    QUIZ.forEach(q => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'quizbtn';
+      b.dataset.tone = q.tone;
+      b.id = 'start-' + q.id;
+      const rec = records[q.id] == null ? 'Pas encore joué' : 'Record : ' + records[q.id] + ' / ' + q.n;
+      b.innerHTML = '<span class="num">' + q.n + '<small>questions</small></span>' +
+        '<span class="meta"><span class="name"></span><span class="desc"></span><span class="rec"></span></span>';
+      b.querySelector('.name').textContent = q.name;
+      b.querySelector('.desc').textContent = q.desc;
+      b.querySelector('.rec').textContent = rec;
+      b.addEventListener('click', () => start(q.id));
+      li.appendChild(b);
+      menu.appendChild(li);
+    });
+  }
+
+  function view(name) {
+    home.hidden = name !== 'home';
+    play.hidden = name !== 'play';
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- Partie ---------- */
+  function start(id) {
+    const q = QUIZ.find(x => x.id === id);
+    cur = { id, q, rounds: buildRounds(id), i: 0, score: 0, answered: false, results: [] };
+    play.dataset.tone = q.tone;
+    result.hidden = true;
+    qcard.hidden = false;
+    view('play');
+    renderRound();
+  }
+
+  function paintDots() {
+    dots.innerHTML = '';
+    cur.rounds.forEach((_, k) => {
+      const d = document.createElement('i');
+      if (cur.results[k] === true) d.className = 'ok';
+      else if (cur.results[k] === false) d.className = 'ko';
+      else if (k === cur.i) d.className = 'cur';
+      dots.appendChild(d);
+    });
+  }
+
+  function renderRound() {
+    const r = cur.rounds[cur.i];
+    cur.answered = false;
+    picked = [];
+    prog.textContent = 'Question ' + (cur.i + 1) + '/' + cur.rounds.length;
+    scoreEl.textContent = 'Score ' + cur.score;
+    qtype.textContent = cur.q.name;
+    qtext.textContent = r.q;
+    fb.hidden = true;
+    nextBtn.hidden = true;
+    tools.hidden = r.kind !== 'order';
+    clearBtn.disabled = false;
+    validateBtn.disabled = true;
+    answers.innerHTML = '';
+    paintDots();
+
+    if (r.kind === 'choice') {
+      answers.className = 'answers' + (r.two ? ' two' : '');
+      r.opts.forEach(o => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ans';
+        const label = document.createElement('span');
+        label.textContent = o.t;
+        const mark = document.createElement('span');
+        mark.className = 'mark';
+        mark.setAttribute('aria-hidden', 'true');
+        b.append(label, mark);
+        b.addEventListener('click', () => answerChoice(b, o));
+        answers.appendChild(b);
+      });
+    } else {
+      answers.className = 'answers';
+      shuffle([...r.items]).forEach(it => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ans chip';
+        b.setAttribute('aria-pressed', 'false');
+        b.innerHTML = '<span class="rank"></span><span class="title"></span><span class="year"></span>';
+        b.querySelector('.title').textContent = it.t;
+        b.addEventListener('click', () => toggleChip(b, it));
+        it.el = b;
+        answers.appendChild(b);
+      });
+    }
+  }
+
+  function showFeedback(good, text) {
+    fb.className = 'feedback ' + (good ? 'good' : 'bad');
+    fbTitle.textContent = good ? 'Bonne réponse !' : 'Raté.';
+    fbText.textContent = text;
+    fb.hidden = false;
+    const last = cur.i === cur.rounds.length - 1;
+    nextBtn.textContent = last ? 'Voir mon score' : 'Question suivante';
+    nextBtn.hidden = false;
+    paintDots();
+    scoreEl.textContent = 'Score ' + cur.score;
+    nextBtn.focus();
+  }
+
+  function answerChoice(btn, opt) {
+    if (cur.answered) return;
+    cur.answered = true;
+    const r = cur.rounds[cur.i];
+    const good = opt.ok;
+    if (good) cur.score++;
+    cur.results[cur.i] = good;
+    const btns = [...answers.children];
+    btns.forEach((b, k) => {
+      b.disabled = true;
+      const m = b.querySelector('.mark');
+      if (r.opts[k].ok) { b.classList.add('ok'); m.textContent = '✓'; }
+      else if (b === btn) { b.classList.add('ko'); m.textContent = '✕'; }
+    });
+    let text = r.e;
+    if (!good && !r.two) text = 'La bonne réponse : ' + r.opts.find(o => o.ok).t + '. ' + r.e;
+    else if (!good) text = r.e;
+    showFeedback(good, text);
+  }
+
+  /* Chronologie */
+  function paintOrder() {
+    const r = cur.rounds[cur.i];
+    r.items.forEach(it => {
+      const k = picked.indexOf(it);
+      it.el.setAttribute('aria-pressed', String(k >= 0));
+      it.el.querySelector('.rank').textContent = k >= 0 ? k + 1 : '';
+    });
+    validateBtn.disabled = picked.length !== r.items.length;
+  }
+  function toggleChip(btn, it) {
+    if (cur.answered) return;
+    const k = picked.indexOf(it);
+    if (k >= 0) picked.splice(k, 1); else picked.push(it);
+    paintOrder();
+  }
+  clearBtn.addEventListener('click', () => { if (cur && !cur.answered) { picked = []; paintOrder(); } });
+  validateBtn.addEventListener('click', () => {
+    if (!cur || cur.answered) return;
+    const r = cur.rounds[cur.i];
+    if (picked.length !== r.items.length) return;
+    cur.answered = true;
+    const sorted = [...r.items].sort((a, b) => a.rank - b.rank);
+    const good = picked.every((it, k) => it === sorted[k]);
+    if (good) cur.score++;
+    cur.results[cur.i] = good;
+    r.items.forEach(it => {
+      const k = picked.indexOf(it);
+      const right = sorted.indexOf(it) === k;
+      it.el.disabled = true;
+      it.el.classList.add(right ? 'ok' : 'ko');
+      it.el.querySelector('.rank').textContent = String(sorted.indexOf(it) + 1);
+      it.el.querySelector('.year').textContent = it.d;
+    });
+    clearBtn.disabled = true;
+    validateBtn.disabled = true;
+    showFeedback(good, 'Dans l’ordre : ' + sorted.map(it => it.t + ' (' + it.d + ')').join(', ') + '.');
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (!cur || !cur.answered) return;
+    if (cur.i < cur.rounds.length - 1) { cur.i++; renderRound(); }
+    else finish();
+  });
+
+  function finish() {
+    const n = cur.rounds.length, s = cur.score;
+    const r = saveRecord(cur.id, s);
+    qcard.hidden = true;
+    result.hidden = false;
+    $('#rtype').textContent = cur.q.name;
+    $('#rscore').textContent = s + ' / ' + n;
+    const ratio = s / n;
+    $('#rverdict').textContent = ratio >= 0.9 ? 'Tu es incollable.' : ratio >= 0.6 ? 'Belle culture Jul, bien joué.' : 'Encore un peu de révision, et tu y es.';
+    $('#rrec').textContent = r.prev === null ? 'Premier score enregistré.' : r.isNew ? 'Nouveau record ! L’ancien était de ' + r.prev + ' / ' + n + '.' : 'Ton record : ' + r.prev + ' / ' + n + '.';
+    prog.textContent = 'Terminé';
+    scoreEl.textContent = 'Score ' + s;
+    dots.innerHTML = '';
+    $('#again').focus();
+  }
+
+  $('#again').addEventListener('click', () => start(cur.id));
+  $('#menu2').addEventListener('click', goHome);
+  $('#back').addEventListener('click', goHome);
+  function goHome() { renderMenu(); view('home'); }
+
+  renderMenu();
+  view('home');
+})();
+</script>
+
+</body></html>
